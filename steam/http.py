@@ -80,6 +80,7 @@ class HTTPClient:
         "_captcha_text",
         "_steam_id",
         "_interactive",
+        "_timeout",
         "session_id",
         "user",
         "logged_in",
@@ -118,6 +119,7 @@ class HTTPClient:
         self.proxy: Optional[str] = options.get("proxy")
         self.proxy_auth: Optional[aiohttp.BasicAuth] = options.get("proxy_auth")
         self.connector: Optional[aiohttp.BaseConnector] = options.get("connector")
+        self._timeout: Optional[int] = options.get("timeout")  # in seconds
 
     def recreate(self) -> None:
         if not self._session or self._session.closed:
@@ -128,6 +130,8 @@ class HTTPClient:
 
     async def request(self, method: str, url: StrOrURL, **kwargs: Any) -> Optional[Any]:  # adapted from d.py
         kwargs["headers"] = {"User-Agent": self.user_agent, **kwargs.get("headers", {})}
+        if self._timeout is not None:
+            kwargs["timeout"] = aiohttp.ClientTimeout(total=self._timeout)
         # proxy support
         if self.proxy is not None:
             kwargs["proxy"] = self.proxy
