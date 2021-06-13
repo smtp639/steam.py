@@ -101,7 +101,12 @@ class Client:
         The connected websocket/CM server, this can be used to directly send messages to said CM.
     """
 
-    def __init__(self, loop: Optional[asyncio.AbstractEventLoop] = None, **options: Any):
+    def __init__(
+        self,
+        loop: Optional[asyncio.AbstractEventLoop] = None,
+        interactive=True,
+        **options: Any
+    ):
         if loop:
             import inspect
 
@@ -111,7 +116,7 @@ class Client:
                 + 1,  # make sure its always at the top of the stack most likely where the Client was created
             )
         self.loop = asyncio.get_event_loop()
-        self.http = HTTPClient(client=self, **options)
+        self.http = HTTPClient(client=self, interactive=interactive, **options)
         self._connection = ConnectionState(client=self, **options)
         self.ws: Optional[SteamWebSocket] = None
 

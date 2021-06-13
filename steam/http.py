@@ -79,6 +79,7 @@ class HTTPClient:
         "_captcha_id",
         "_captcha_text",
         "_steam_id",
+        "_interactive",
         "session_id",
         "user",
         "logged_in",
@@ -91,7 +92,7 @@ class HTTPClient:
     SUCCESS_LOG = "{method} {url} has received {text}"
     REQUEST_LOG = "{method} {url} with {payload} has returned {status}"
 
-    def __init__(self, client: Client, **options: Any):
+    def __init__(self, client: Client, interactive=True, **options: Any):
         self._session: Optional[aiohttp.ClientSession] = None  # filled in login
         self._client = client
 
@@ -99,6 +100,7 @@ class HTTPClient:
         self.password: Optional[str] = None
         self.api_key: Optional[str] = None
         self.shared_secret: Optional[str] = None
+        self._interactive = interactive
         self._one_time_code = ""
         self._email_code = ""
         self._captcha_id = "-1"
@@ -210,14 +212,17 @@ class HTTPClient:
             resp = await self._send_login_request()
 
             if resp.get("captcha_needed") and resp.get("message") != "Please wait and try again later.":
-                self._captcha_id = resp["captcha_gid"]
-                print(
-                    "Please enter the captcha text at "
-                    f"https://steamcommunity.com/login/rendercaptcha/?gid={resp['captcha_gid']}"
-                )
-                captcha_text = await utils.ainput(">>> ")
-                self._captcha_text = captcha_text.strip()
-                return await self.login(username, password, shared_secret)
+                if self._interactive:
+                    self._captcha_id = resp["captcha_gid"]
+                    print(
+                        "Please enter the captcha text at "
+                        f"https://steamcommunity.com/login/rendercaptcha/?gid={resp['captcha_gid']}"
+                    )
+                    captcha_text = await utils.ainput(">>> ")
+                    self._captcha_text = captcha_text.strip()
+                    return await self.login(username, password, shared_secret)
+                else:  # non-interactive
+                    raise errors.CaptchaRequired("Failed to login. Captcha required.")
 
             if not resp["success"]:
                 raise errors.InvalidCredentials(resp.get("message", "An unexpected error occurred"))

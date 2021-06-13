@@ -187,6 +187,13 @@ class InvalidCredentials(LoginError):
     """
 
 
+class CaptchaRequired(LoginError):
+    """Exception that's thrown when a captcha is required at login.
+
+    Subclass of :exc:`LoginError`.
+    """
+
+
 class AuthenticatorError(ClientException):
     """Exception that's thrown when Steam cannot authenticate your details.
 
