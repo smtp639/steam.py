@@ -187,6 +187,8 @@ class Item(Asset):
     display_name: Optional[:class:`str`]
         The displayed name of the item. This could be different to
         :attr:`Item.name` if the item is user re-nameable.
+    market_hash_name: Optional[:class:`str`]
+        The market_hash_name of the item.
     colour: Optional[:class:`int`]
         The colour of the item.
     descriptions: Optional[:class:`str`]
@@ -207,6 +209,7 @@ class Item(Asset):
         "icon_url",
         "display_name",
         "descriptions",
+        "market_hash_name",
         "_is_tradable",
         "_is_marketable",
     )
@@ -224,6 +227,7 @@ class Item(Asset):
 
     def _from_data(self, data: ItemDict) -> None:
         self.name = data.get("market_name")
+        self.market_hash_name = data.get("market_hash_name")
         self.display_name = data.get("name")
         self.colour = int(data["name_color"], 16) if "name_color" in data else None
         self.descriptions = data.get("descriptions")
