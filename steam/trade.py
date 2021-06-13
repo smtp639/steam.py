@@ -407,6 +407,8 @@ class TradeOffer:
         The message included with the trade offer.
     id: :class:`int`
         The trade's offer ID.
+    time_created: :class:`int`
+        Unix timestamp of the time the offer was sent.
     expires: :class:`datetime.datetime`
         The time at which the trade automatically expires.
     escrow: Optional[:class:`datetime.timedelta`]
@@ -427,6 +429,7 @@ class TradeOffer:
         "expires",
         "items_to_send",
         "items_to_receive",
+        "time_created",
         "_has_been_sent",
         "_state",
         "_is_our_offer",
@@ -475,6 +478,7 @@ class TradeOffer:
         escrow = data.get("escrow_end_date")
         self.expires = datetime.utcfromtimestamp(expires) if expires else None
         self.escrow = datetime.utcfromtimestamp(escrow) - datetime.utcnow() if escrow else None
+        self.time_created = int(data["time_created"])
         self.state = TradeOfferState(data.get("trade_offer_state", 1))
         self.items_to_send = [Item(data=item) for item in data.get("items_to_give", [])]
         self.items_to_receive = [Item(data=item) for item in data.get("items_to_receive", [])]
