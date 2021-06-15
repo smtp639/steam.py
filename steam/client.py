@@ -346,7 +346,6 @@ class Client:
 
         await self.http.login(username, password, shared_secret=shared_secret)
         self._closed = False
-        self.loop.create_task(self._connection.__ainit__())
 
     async def close(self) -> None:
         """|coro|
@@ -409,6 +408,7 @@ class Client:
             log.info("Trades will not be automatically accepted when sent as no identity_secret was passed.")
 
         await self.login(username, password, shared_secret=shared_secret)
+        self.loop.create_task(self._connection.__ainit__())
         await self.connect()
 
     async def connect(self) -> None:
@@ -544,6 +544,17 @@ class Client:
             The trade offer or ``None`` if the trade was not found.
         """
         return await self._connection.fetch_trade(id)
+
+    async def fetch_trades(self) -> list[TradeOffer]:
+        """|coro|
+        Fetches all trades from the API.
+
+        Returns
+        -------
+        list[:class:`~steam.TradeOffer`]
+            List of trade offers.
+        """
+        return await self._connection.fetch_trades()
 
     def get_group(self, id: utils.Intable) -> Optional[Group]:
         """Get a group from cache with a matching ID.
