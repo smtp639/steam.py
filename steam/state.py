@@ -162,8 +162,6 @@ class ConnectionState(Registerable):
 
     async def __ainit__(self) -> None:
         if self.http.api_key is not None:
-            self._device_id = generate_device_id(self.client.user)
-
             await self.poll_trades()
 
     @property
@@ -189,6 +187,9 @@ class ConnectionState(Registerable):
     @property
     def confirmations(self) -> list[Confirmation]:
         return list(self._confirmations.values())
+
+    def set_device_id(self):
+        self._device_id = generate_device_id(self.client.user)
 
     def get_user(self, id64: int) -> Optional[User]:
         return self._users.get(id64)

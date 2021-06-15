@@ -345,6 +345,7 @@ class Client:
         self.shared_secret = shared_secret
 
         await self.http.login(username, password, shared_secret=shared_secret)
+        self._connection.set_device_id()
         self._closed = False
 
     async def close(self) -> None:
